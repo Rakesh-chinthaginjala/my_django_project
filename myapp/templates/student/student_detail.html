@@ -1,0 +1,13 @@
+{% extends 'student/base.html' %}
+{% block title %}Student Detail{% endblock %}
+{% block content %}
+  <h2>{{ student.first_name }} {{ student.last_name }}</h2>
+  <p>Email: {{ student.email }}</p>
+  <p>Age: {{ student.age }}</p>
+
+  {% if student.photo %}
+    <p><img src="{{ student.photo.url }}" alt="Photo of {{ student.first_name }}" width="200"></p>
+  {% else %}
+    <p>No photo uploaded.</p>
+  {% endif %}
+{% endblock %}

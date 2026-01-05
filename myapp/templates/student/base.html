@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}College{% endblock %}</title>
+</head>
+<body>
+  <header>
+    <h1><a href="{% url 'student:home' %}">College</a></h1>
+    <nav>
+      <a href="{% url 'student:list' %}">Students</a> |
+      <a href="{% url 'student:add' %}">Add Student (CBV)</a> |
+      <a href="{% url 'student:fbv_add' %}">Add Student (FBV)</a>
+    </nav>
+    <hr>
+  </header>
+
+  <main>
+    {% if messages %}
+      <ul class="messages">
+      {% for msg in messages %}
+        <li>{{ msg }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    <hr>
+    <p>College app</p>
+  </footer>
+</body>
+</html>
