@@ -9,17 +9,23 @@ def demo(request):
     return HttpResponse("let start with django")
 
 def send_email_with_attchment(request):
+
+    # creating an email object
     email = EmailMessage(
         subject='Regarding email sending with attachment',
         body='Welcome to the django project handling the files',
         from_email='rakesh.chinthaginjala26@gmail.com',
         to=['nb6684@gmail.com']
     )
+
+    # adding the attachment to the email
     email.attach(
         filename='krishna.txt',
         content='Folk Tales & Fables: Often feature animals or magical elements with clear morals, teaching lessons about honesty, cleverness, or bravery (e.g., the monkey and crocodile)',
         mimetype='text/plain'
     )
+
+    # finally sending the email
     email.send()
     return HttpResponse('Email sent successfully with attachment')
 
