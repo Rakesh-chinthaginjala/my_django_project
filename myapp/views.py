@@ -359,4 +359,38 @@ def get_lat_long(request):
         "latitude": data[0]["lat"],
         "longitude": data[0]["lon"]
     })
+
+
+#  write an api that fetches the user data from db and export it as csv
+import csv
+from django.http import HttpResponse
+from django.contrib.auth.models import User
+from rest_framework.decorators import api_view
+
+@api_view(['GET'])
+def export_users_csv(request):
+    # Create HTTP response with CSV content type
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="users.csv"'
+
+    writer = csv.writer(response)
+
+    # CSV Header
+    writer.writerow(['ID', 'Username', 'Email', 'First Name', 'Last Name', 'Date Joined'])
+
+    # Fetch users from DB
+    users = User.objects.all()
+
+    for user in users:
+        writer.writerow([
+            user.id,
+            user.username,
+            user.email,
+            user.first_name,
+            user.last_name,
+            user.date_joined
+        ])
+
+    return response
+
     

@@ -29,6 +29,8 @@ urlpatterns=[
     path("update_user details/", UpdateUserAPIView.as_view()),
     path("delete_user/", DeleteUserAPIView.as_view()),
     path("logout_user/", LogoutAPIView.as_view()),
-    
+
     path('geocode/', get_lat_long, name='get-lat-long'),
+    path('api/export-users/', export_users_csv, name='export_users_csv'),
 ]
+
