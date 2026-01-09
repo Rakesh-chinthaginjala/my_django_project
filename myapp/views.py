@@ -318,7 +318,9 @@ class LogoutAPIView(APIView):
             "message": "Logout successful",
             "is_active": user.is_active
         })
-    
+
+
+#   write an API that takes location as input and gets its latitude and longitude  
 import requests
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
