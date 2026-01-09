@@ -1,5 +1,18 @@
 from django.http import HttpResponse
-from django.core.mail import *
+from django.core.mail import EmailMessage, send_mail, send_mass_mail
+from django.views.generic import TemplateView, ListView, DetailView, CreateView
+from django.shortcuts import render, redirect
+from django.contrib.auth.hashers import check_password
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework import status
+
+from .models import Student, User
+from .forms import StudentForm
+from .serializers import UserSerializer, LoginSerializer, IdSerializer
+from .utils import get_tokens_for_user
 
 
 def greet(request):
@@ -78,11 +91,6 @@ def send_single_email(request):
     )
     return HttpResponse('sucessfully sending email')
 
-from django.views.generic import TemplateView, ListView, DetailView, CreateView
-from django.shortcuts import render, redirect
-from .models import Student
-from .forms import StudentForm
-
 # Static Home page (Generic TemplateView)
 class HomeView(TemplateView):
     template_name = 'student/home.html'
@@ -119,9 +127,6 @@ class StudentCreateView(CreateView):
 #     return render(request, 'student/student_form.html', {'form': form})
 
 
-from django.shortcuts import render, redirect
-from .forms import StudentForm
-
 def add_student_fbv(request):
     if request.method == "POST":
         form = StudentForm(request.POST, request.FILES)
@@ -132,15 +137,7 @@ def add_student_fbv(request):
         form = StudentForm()
     return render(request, 'student/student_form.html', {'form': form})
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework import status
-from django.contrib.auth.hashers import check_password
 
-from .models import User
-from .serializers import UserSerializer, LoginSerializer, IdSerializer
-from .utils import get_tokens_for_user
 
 class RegisterUserAPIView(APIView):
     permission_classes = [AllowAny]
@@ -156,6 +153,29 @@ class RegisterUserAPIView(APIView):
             {"message": "User registered successfully"},
             status=status.HTTP_201_CREATED
         )
+
+
+class UserSignupAPIView(APIView):
+    """Provides a form schema via GET and accepts signup via POST."""
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        schema = {
+            "title": "User Signup",
+            "fields": [
+                {"name": "username", "type": "string", "required": True, "max_length": 100},
+                {"name": "email", "type": "email", "required": True},
+                {"name": "password", "type": "password", "required": True, "min_length": 8},
+            ]
+        }
+        return Response(schema)
+
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # create user inactive by default
+        serializer.save(is_active=False)
+        return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
 
@@ -298,3 +318,43 @@ class LogoutAPIView(APIView):
             "message": "Logout successful",
             "is_active": user.is_active
         })
+    
+import requests
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+
+@api_view(['GET'])
+def get_lat_long(request):
+    location = request.GET.get('location')
+
+    if not location:
+        return Response(
+            {"error": "Location parameter is required"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    url = "https://nominatim.openstreetmap.org/search"
+    params = {
+        "q": location,
+        "format": "json"
+    }
+
+    response = requests.get(
+        url, params=params, headers={"User-Agent": "django-app"}
+    )
+
+    data = response.json()
+
+    if not data:
+        return Response(
+            {"error": "Location not found"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    return Response({
+        "location": location,
+        "latitude": data[0]["lat"],
+        "longitude": data[0]["lon"]
+    })
+    

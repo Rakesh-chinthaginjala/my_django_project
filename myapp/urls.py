@@ -21,6 +21,7 @@ urlpatterns=[
     path('students/fbv-add/', add_student_fbv, name='fbv_add'),
 
     path("register/", RegisterUserAPIView.as_view()),
+    path("signup/", UserSignupAPIView.as_view()),
     path("login/", LoginAPIView.as_view()),
 
     path("get_all_users/", GetAllUsersAPIView.as_view()),
@@ -28,5 +29,6 @@ urlpatterns=[
     path("update_user details/", UpdateUserAPIView.as_view()),
     path("delete_user/", DeleteUserAPIView.as_view()),
     path("logout_user/", LogoutAPIView.as_view()),
-
+    
+    path('geocode/', get_lat_long, name='get-lat-long'),
 ]
